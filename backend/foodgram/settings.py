@@ -118,7 +118,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-LANGUAGE_CODE = 'en-us'  # надо заменить на LANGUAGE_CODE = 'ru-RU'
+LANGUAGE_CODE = 'ru-RU'  # надо заменить на LANGUAGE_CODE =  'en-us'
 
 TIME_ZONE = 'UTC'
 
