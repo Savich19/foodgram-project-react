@@ -8,7 +8,7 @@ WORKDIR /app
 COPY requirements.txt ./
 
 # Выполнить установку зависимостей внутри контейнера.
-RUN pip3 install -r requirements.txt --no-cache-dir
+RUN pip install --upgrade pip && pip install -r requirements.txt --no-cache-dir
 
 # Скопировать содержимое директории /api_yamdb c локального компьютера
 # в директорию /app.
