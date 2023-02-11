@@ -12,7 +12,7 @@ SECRET_KEY = os.getenv(
     default='ec59wg#s_k+59(&sop4ce@c$b3dyt!#!&w&@()s)p63vn1qxsb'
 )
 
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -46,12 +46,12 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'foodgram.urls'
 
-TEMPLATES_DIR = os.path.join(BASE_DIR, "templates")  # дописал
+# TEMPLATES_DIR = os.path.join(BASE_DIR, "templates")  # дописал
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [TEMPLATES_DIR],
+        'DIRS': [],  # 'DIRS': [TEMPLATES_DIR],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -66,41 +66,28 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'foodgram.wsgi.application'
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#     }
-# }
 
-DATABASES = {
-    'default': {
-        'ENGINE': os.getenv(
-            'DB_ENGINE',
-            default='django.db.backends.postgresql'
-        ),
-        'NAME': os.getenv(
-            'DB_NAME',
-            default='DB_name'
-        ),
-        'USER': os.getenv(
-            'POSTGRES_USER',
-            default='DB_user'
-        ),
-        'PASSWORD': os.getenv(
-            'POSTGRES_PASSWORD',
-            default='DB_password'
-        ),
-        'HOST': os.getenv(
-            'DB_HOST',
-            default='db'
-        ),
-        'PORT': os.getenv(
-            'DB_PORT',
-            default='5432'
-        )
+IS_SQL = True
+
+if IS_SQL:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': os.getenv('DB_ENGINE',
+                                default='django.db.backends.postgresql'),
+            'NAME': os.getenv('DB_NAME', default='DB_name'),
+            'USER': os.getenv('POSTGRES_USER', default='DB_user'),
+            'PASSWORD': os.getenv('POSTGRES_PASSWORD', default='DB_password'),
+            'HOST': os.getenv('DB_HOST', default='db'),
+            'PORT': os.getenv('DB_PORT', default='5432')
+        }
+    }
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -166,14 +153,14 @@ REST_FRAMEWORK = {
 #     'AUTH_HEADER_TYPES': ('Bearer',),
 # }
 
-EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_HOST = 'smtp.gmail.com'
 
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+# EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+# EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 
-EMAIL_PORT = 587
+# EMAIL_PORT = 587
 
-EMAIL_USE_TLS = True
+# EMAIL_USE_TLS = True
 
-EMAIL_USE_SSL = False
+# EMAIL_USE_SSL = False

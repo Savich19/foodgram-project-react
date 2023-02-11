@@ -8,15 +8,6 @@ from .validators import validate_username
 
 
 class User(AbstractUser):
-    # ADMIN = 'admin'
-    # GUEST = 'guest'  # не факт, что надо
-    # USER = 'user'
-
-    # ROLE_CHOICES = [
-    #     (ADMIN, "Администратор"),
-    #     (GUEST, "Неавторизованный пользователь"),
-    #     (USER, 'Авторизованный пользователь'),
-    # ]
 
     email = models.EmailField(
         max_length=254,
@@ -48,20 +39,6 @@ class User(AbstractUser):
         blank=False,
         null=False
     )
-    # role = models.CharField(
-    #     'роль',
-    #     max_length=20,
-    #     choices=ROLE_CHOICES,
-    #     default=USER,
-    #     blank=True
-    # )
-    # confirmation_code = models.CharField(
-    #     'код подтверждения',
-    #     max_length=255,
-    #     null=True,
-    #     blank=False,
-    #     default='XXXX'
-    # )
 
     class Meta:
         ordering = ['id']
@@ -70,22 +47,3 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.email
-        # return self.username
-
-    # @property
-    # def is_user(self):
-    #     return self.role == self.USER
-
-    # @property
-    # def is_admin(self):
-    #     return self.role == self.ADMIN
-
-
-# @receiver(post_save, sender=User)
-# def post_save(sender, instance, created, **kwargs):
-#     if created:
-#         confirmation_code = default_token_generator.make_token(
-#             instance
-#         )
-#         instance.confirmation_code = confirmation_code
-#         instance.save()

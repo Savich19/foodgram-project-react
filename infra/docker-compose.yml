@@ -20,15 +20,6 @@ services:
     env_file:
       - ./.env
 
-  frontend:
-      build:
-        context: ../frontend
-        dockerfile: Dockerfile
-      volumes:
-        - ../frontend/:/app/result_build/
-      depends_on:
-        - backend
-
   nginx:
     image: nginx:1.19.3
     ports:
@@ -38,7 +29,16 @@ services:
       - ../frontend/build:/usr/share/nginx/html/
       - ../docs/:/usr/share/nginx/html/api/docs/
     depends_on:
-      - frontend
+      - backend
+
+  frontend:
+      build:
+        context: ../frontend
+        dockerfile: Dockerfile
+      volumes:
+        - ../frontend/:/app/result_build/
+      depends_on:
+        - nginx
 
 volumes:
   postgres_data:

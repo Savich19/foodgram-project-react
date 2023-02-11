@@ -8,7 +8,7 @@ User = get_user_model()  # hz
 
 
 class Tag(models.Model):
-    """Класс предустановленных тэгов. Создаются администратором"""
+    """Класс предустановленных тэгов. Создаются администратором."""
 
     name = models.CharField(
         'Название тэга',
@@ -35,14 +35,11 @@ class Tag(models.Model):
 
 
 class Ingredient(models.Model):
-    """Класс ингредиентов"""
+    """Класс ингредиентов."""
 
     name = models.CharField(
         'Название ингредиента',
         max_length=200
-    )
-    count = models.IntegerField(
-        'Количество'
     )
     measurement_unit = models.CharField(
         'Единица измерения',
@@ -55,15 +52,16 @@ class Ingredient(models.Model):
         verbose_name_plural = 'Ингредиенты'
 
     def __str__(self):
-        return f'{self.name}: {self.count} {self.measurement_unit}.'
+        return f'{self.name}, {self.measurement_unit}.'
 
 
 class Recipe(models.Model):
-    """Класс рецептов"""
+    """Класс рецептов."""
+
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='recipe',  # hz
+        related_name='recipe',
         verbose_name='Автор'
     )
     name = models.CharField(
@@ -73,8 +71,6 @@ class Recipe(models.Model):
     image = models.ImageField(
         'Изображение рецепта',
         upload_to='static/recipe/',
-        # blank=True,
-        # null=True
     )
     text = models.TextField(
         'Описание рецепта'
@@ -106,11 +102,12 @@ class Recipe(models.Model):
         verbose_name_plural = 'Рецепты'
 
     def __str__(self):
-        return f'{self.author.email}, {self.name}'  # hz
+        return f'{self.author.email}, {self.name}'
 
 
 class RecipeIngredient(models.Model):
-    """Класс, описывающий связь рецептов и ингредиентов"""
+    """Класс, описывающий связь рецептов и ингредиентов."""
+
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
@@ -125,8 +122,8 @@ class RecipeIngredient(models.Model):
     )
 
     class Meta:
-        # verbose_name = 'Количество ингредиента'
-        # verbose_name_plural = 'Количество ингредиентов'
+        verbose_name = 'Количество ингредиента'
+        verbose_name_plural = 'Количество ингредиентов'
         ordering = ['-id']
         constraints = [
             models.UniqueConstraint(
@@ -137,7 +134,8 @@ class RecipeIngredient(models.Model):
 
 
 class Subscribe(models.Model):
-    """Класс, описывающий связь подписчиков и авторов"""
+    """Класс, описывающий связь подписчиков и авторов."""
+
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -176,6 +174,7 @@ class Subscribe(models.Model):
 
 class FavoriteRecipe(models.Model):
     """Класс избранных рецептов"""
+
     user = models.OneToOneField(  # hz
         User,
         on_delete=models.CASCADE,

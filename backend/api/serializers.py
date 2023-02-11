@@ -22,7 +22,6 @@ class Base64ImageField(serializers.ImageField):
             format, imgstr = data.split(';base64,')
             ext = format.split('/')[-1]
             data = ContentFile(base64.b64decode(imgstr), name='photo.' + ext)
-
         return super().to_internal_value(data)
 
 
@@ -54,12 +53,14 @@ class TokenSerializer(serializers.Serializer):
             if not user:
                 raise serializers.ValidationError(
                     ERROR_MSG,
-                    code='authorization')
+                    code='authorization'
+                )
         else:
             msg = 'Необходимо указать адрес электронной почты и пароль.'
             raise serializers.ValidationError(
                 msg,
-                code='authorization')
+                code='authorization'
+            )
         attrs['user'] = user
         return attrs
 
@@ -73,16 +74,19 @@ class GetIsSubscribedMixin:
         return user.follower.filter(author=obj).exists()
 
 
-class UserListSerializer(
-        GetIsSubscribedMixin,
+class UserListSerializer(GetIsSubscribedMixin,
         serializers.ModelSerializer):
     is_subscribed = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = User
         fields = (
-            'email', 'id', 'username',
-            'first_name', 'last_name', 'is_subscribed'
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'is_subscribed'
         )
 
 
@@ -91,8 +95,12 @@ class UserCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = (
-            'id', 'email', 'username',
-            'first_name', 'last_name', 'password',
+            'id',
+            'email',
+            'username',
+            'first_name',
+            'last_name',
+            'password',
         )
 
     def validate_password(self, password):
@@ -133,7 +141,12 @@ class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
         fields = (
-            'id', 'name', 'color', 'slug',)
+            'id',
+            'name',
+            'color',
+            'slug',
+        )
+        read_only_fields = '__all__'  # hz
 
 
 class IngredientSerializer(serializers.ModelSerializer):
@@ -141,6 +154,7 @@ class IngredientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ingredient
         fields = '__all__'
+        read_only_fields = '__all__'  # hz
 
 
 class RecipeIngredientSerializer(serializers.ModelSerializer):
@@ -154,11 +168,14 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
     class Meta:
         model = RecipeIngredient
         fields = (
-            'id', 'name', 'measurement_unit', 'amount')
+            'id',
+            'name',
+            'measurement_unit',
+            'amount'
+        )
 
 
-class RecipeUserSerializer(
-        GetIsSubscribedMixin,
+class RecipeUserSerializer(GetIsSubscribedMixin,
         serializers.ModelSerializer):
 
     is_subscribed = serializers.SerializerMethodField(
@@ -167,8 +184,13 @@ class RecipeUserSerializer(
     class Meta:
         model = User
         fields = (
-            'email', 'id', 'username',
-            'first_name', 'last_name', 'is_subscribed')
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'is_subscribed'
+        )
 
 
 class IngredientsEditSerializer(serializers.ModelSerializer):
@@ -270,18 +292,23 @@ class RecipeReadSerializer(serializers.ModelSerializer):
     image = Base64ImageField()
     tags = TagSerializer(
         many=True,
-        read_only=True)
+        read_only=True
+    )
     author = RecipeUserSerializer(
         read_only=True,
-        default=serializers.CurrentUserDefault())
+        default=serializers.CurrentUserDefault()
+    )
     ingredients = RecipeIngredientSerializer(
         many=True,
         required=True,
-        source='recipe')
+        source='recipe'
+    )
     is_favorited = serializers.BooleanField(
-        read_only=True)
+        read_only=True
+    )
     is_in_shopping_cart = serializers.BooleanField(
-        read_only=True)
+        read_only=True
+    )
 
     class Meta:
         model = Recipe
@@ -292,7 +319,12 @@ class SubscribeRecipeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = ('id', 'name', 'image', 'cooking_time')
+        fields = (
+            'id',
+            'name',
+            'image',
+            'cooking_time'
+        )
 
 
 class SubscribeSerializer(serializers.ModelSerializer):
@@ -315,15 +347,24 @@ class SubscribeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subscribe
         fields = (
-            'email', 'id', 'username', 'first_name', 'last_name',
-            'is_subscribed', 'recipes', 'recipes_count',)
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'is_subscribed',
+            'recipes',
+            'recipes_count',
+        )
 
     def get_recipes(self, obj):
         request = self.context.get('request')
         limit = request.GET.get('recipes_limit')
         recipes = (
             obj.author.recipe.all()[:int(limit)] if limit
-            else obj.author.recipe.all())
+            else obj.author.recipe.all()
+        )
         return SubscribeRecipeSerializer(
             recipes,
-            many=True).data
+            many=True
+        ).data
