@@ -130,3 +130,6 @@ dmypy.json
 
 # .idea
 .idea
+
+# My favorite ignor files
+.vscode/
