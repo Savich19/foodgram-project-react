@@ -3,16 +3,16 @@ import os
 
 from dotenv import load_dotenv
 
-load_dotenv('infra/.env')
+load_dotenv('../infra/.env')
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 SECRET_KEY = os.getenv(
     'SECRET_KEY',
-    default='ec59wg#s_k+59(&sop4ce@c$b3dyt!#!&w&@()s)p63vn1qxsb'
+    # default='ec59wg#s_k+59(&sop4ce@c$b3dyt!#!&w&@()s)p63vn1qxsb'
 )
 
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -127,6 +127,8 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.BasicAuthentication',  # Test Hz
+        'rest_framework.authentication.SessionAuthentication',  # Test Hz
     ],
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend',
@@ -140,12 +142,6 @@ REST_FRAMEWORK = {
 #     'DEFAULT_AUTHENTICATION_CLASSES': (
 #         'rest_framework_simplejwt.authentication.JWTAuthentication',
 #     ),
-#     'DEFAULT_FILTER_BACKENDS': [
-#         'django_filters.rest_framework.DjangoFilterBackend',
-#     ],
-#     'DEFAULT_PAGINATION_CLASS':
-#         'rest_framework.pagination.LimitOffsetPagination',
-#     'PAGE_SIZE': 10,
 # }
 
 # SIMPLE_JWT = {

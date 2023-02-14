@@ -4,7 +4,7 @@ from django.core.files.base import ContentFile
 import django.contrib.auth.password_validation as validators
 from django.contrib.auth import authenticate, get_user_model
 from django.contrib.auth.hashers import make_password
-from django.shortcuts import get_object_or_404
+# from django.shortcuts import get_object_or_404
 
 # from base64 import Base64ImageField  # drf_base64
 from rest_framework import serializers
@@ -74,9 +74,10 @@ class GetIsSubscribedMixin:
         return user.follower.filter(author=obj).exists()
 
 
-class UserListSerializer(GetIsSubscribedMixin,
-        serializers.ModelSerializer):
-    is_subscribed = serializers.BooleanField(read_only=True)
+# class UserListSerializer(GetIsSubscribedMixin, serializers.ModelSerializer):
+class UserListSerializer(GetIsSubscribedMixin, serializers.ModelSerializer):
+    is_subscribed = serializers.SerializerMethodField(read_only=True)  # (read_only=True) ??
+    # is_subscribed = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = User
@@ -86,7 +87,7 @@ class UserListSerializer(GetIsSubscribedMixin,
             'username',
             'first_name',
             'last_name',
-            'is_subscribed'
+            'is_subscribed',
         )
 
 
@@ -146,15 +147,19 @@ class TagSerializer(serializers.ModelSerializer):
             'color',
             'slug',
         )
-        read_only_fields = '__all__'  # hz
+        read_only_fields = ('id', 'name', 'color', 'slug',)
 
 
 class IngredientSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Ingredient
-        fields = '__all__'
-        read_only_fields = '__all__'  # hz
+        fields = (
+            'id',
+            'name',
+            'measurement_unit',
+        )
+        read_only_fields = ('id', 'name', 'measurement_unit',)
 
 
 class RecipeIngredientSerializer(serializers.ModelSerializer):
@@ -171,15 +176,13 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
             'id',
             'name',
             'measurement_unit',
-            'amount'
+            'amount',
         )
 
 
-class RecipeUserSerializer(GetIsSubscribedMixin,
-        serializers.ModelSerializer):
+class RecipeUserSerializer(GetIsSubscribedMixin, serializers.ModelSerializer):
 
-    is_subscribed = serializers.SerializerMethodField(
-        read_only=True)
+    is_subscribed = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = User
@@ -189,7 +192,7 @@ class RecipeUserSerializer(GetIsSubscribedMixin,
             'username',
             'first_name',
             'last_name',
-            'is_subscribed'
+            'is_subscribed',
         )
 
 
@@ -200,7 +203,7 @@ class IngredientsEditSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Ingredient
-        fields = ('id', 'amount')
+        fields = ('id', 'amount',)
 
 
 class RecipeWriteSerializer(serializers.ModelSerializer):
@@ -219,15 +222,22 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         read_only_fields = ('author',)
 
     def validate(self, data):
-        ingredients = data['ingredients']
-        ingredient_list = []
-        for items in ingredients:
-            ingredient = get_object_or_404(
-                Ingredient, id=items['id'])
-            if ingredient in ingredient_list:
-                raise serializers.ValidationError(
-                    'Ингредиент должен быть уникальным!')
-            ingredient_list.append(ingredient)
+        # ingredients = data['ingredients']
+        ingredients_list = data['ingredients']['id']
+        ingredients_set = set(ingredients_list)
+        if len(ingredients_set) != len(ingredients_list):
+            delta = len(ingredients_list) - len(ingredients_set)
+            raise serializers.ValidationError(
+                f'Ингредиент должен быть уникальным! Найдено ошибок: {delta}'
+            )
+        # for items in ingredients:
+        #     ingredient = get_object_or_404(
+        #         Ingredient, id=items['id'])
+        #     if ingredient in ingredient_list:
+        #         raise serializers.ValidationError(
+        #             'Ингредиент должен быть уникальным!')
+        #     ingredient_list.append(ingredient)
+
         tags = data['tags']
         if not tags:
             raise serializers.ValidationError(
@@ -248,10 +258,8 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         if not ingredients:
             raise serializers.ValidationError(
                 'Мин. 1 ингредиент в рецепте!')
-        for ingredient in ingredients:
-            if int(ingredient.get('amount')) < 1:
-                raise serializers.ValidationError(
-                    'Количество ингредиента >= 1!')
+        if [ingr for ingr in ingredients if int(ingr.get('amount')) < 1]:
+            raise serializers.ValidationError('Количество ингредиента >= 1!')
         return ingredients
 
     def create_ingredients(self, ingredients, recipe):
@@ -301,7 +309,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
     ingredients = RecipeIngredientSerializer(
         many=True,
         required=True,
-        source='recipe'
+        source='recipe'  # ???
     )
     is_favorited = serializers.BooleanField(
         read_only=True
@@ -323,7 +331,7 @@ class SubscribeRecipeSerializer(serializers.ModelSerializer):
             'id',
             'name',
             'image',
-            'cooking_time'
+            'cooking_time',
         )
 
 
@@ -339,8 +347,8 @@ class SubscribeSerializer(serializers.ModelSerializer):
     last_name = serializers.CharField(
         source='author.last_name')
     recipes = serializers.SerializerMethodField()
-    is_subscribed = serializers.BooleanField(
-        read_only=True)
+    # is_subscribed = serializers.BooleanField(read_only=True)
+    is_subscribed = serializers.SerializerMethodField(read_only=True)
     recipes_count = serializers.IntegerField(
         read_only=True)
 
@@ -361,8 +369,8 @@ class SubscribeSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         limit = request.GET.get('recipes_limit')
         recipes = (
-            obj.author.recipe.all()[:int(limit)] if limit
-            else obj.author.recipe.all()
+            obj.author.recipes.all()[:int(limit)] if limit
+            else obj.author.recipes.all()
         )
         return SubscribeRecipeSerializer(
             recipes,

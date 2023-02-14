@@ -1,10 +1,13 @@
 from django.contrib.auth import get_user_model  # hz
 from django.core import validators
 from django.db import models
-from django.db.models.signals import post_save  # hz
-from django.dispatch import receiver  # hz
 
-User = get_user_model()  # hz
+User = get_user_model()
+CHOICES = (
+    ('#E26C2D', 'Завтрак'),
+    ('#49B64E', 'Обед'),
+    ('#8775D2', 'Ужин'),
+)
 
 
 class Tag(models.Model):
@@ -18,7 +21,7 @@ class Tag(models.Model):
     color = models.CharField(
         'Цвет',
         max_length=7,
-        unique=True
+        choices=CHOICES
     )
     slug = models.SlugField(
         'Название пути',
@@ -50,6 +53,12 @@ class Ingredient(models.Model):
         ordering = ['name']
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['name', 'measurement_unit'],
+                name='unique_ingredient'
+            ),
+        ]  # after review
 
     def __str__(self):
         return f'{self.name}, {self.measurement_unit}.'
@@ -61,7 +70,7 @@ class Recipe(models.Model):
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='recipe',
+        related_name='recipes',
         verbose_name='Автор'
     )
     name = models.CharField(
@@ -70,14 +79,16 @@ class Recipe(models.Model):
     )
     image = models.ImageField(
         'Изображение рецепта',
-        upload_to='static/recipe/',
+        upload_to='recipe/',
     )
     text = models.TextField(
         'Описание рецепта'
     )
     ingredients = models.ManyToManyField(
         Ingredient,
-        through='RecipeIngredient'
+        through='RecipeIngredient',
+        # verbose_name='Ингредиенты',
+        # related_name='recipes',
     )
     tags = models.ManyToManyField(
         Tag,
@@ -112,14 +123,22 @@ class RecipeIngredient(models.Model):
         Recipe,
         on_delete=models.CASCADE,
         related_name='recipe',
+        # related_name='amounts',
         verbose_name='Рецепт'
     )
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
         related_name='ingredient',
+        # related_name='amounts',
         verbose_name='Ингредиент'
     )
+    amount = models.PositiveSmallIntegerField(
+        default=1,
+        validators=(
+            validators.MinValueValidator(
+                1, message='Мин. количество ингридиентов 1'),),
+        verbose_name='Количество',)
 
     class Meta:
         verbose_name = 'Количество ингредиента'
@@ -178,7 +197,6 @@ class FavoriteRecipe(models.Model):
     user = models.OneToOneField(  # hz
         User,
         on_delete=models.CASCADE,
-        # null=True,  # hz
         related_name='favorite_recipe',
         verbose_name='Пользователь'
     )
@@ -195,12 +213,6 @@ class FavoriteRecipe(models.Model):
     def __str__(self):
         list_ = [item['name'] for item in self.recipe.values('name')]  # hz
         return f'Пользователь {self.user} добавил {list_} в избранные.'
-
-    @receiver(post_save, sender=User)  # hz
-    def create_favorite_recipe(  # hz
-            sender, instance, created, **kwargs):  # hz
-        if created:  # hz
-            return FavoriteRecipe.objects.create(user=instance)  # hz
 
 
 class ShoppingCart(models.Model):
@@ -224,9 +236,3 @@ class ShoppingCart(models.Model):
     def __str__(self):
         list_ = [item['name'] for item in self.recipe.values('name')]  # hz
         return f'Пользователь {self.user} добавил {list_} в покупки.'
-
-    @receiver(post_save, sender=User)  # hz
-    def create_shopping_cart(  # hz
-            sender, instance, created, **kwargs):  # hz
-        if created:  # hz
-            return ShoppingCart.objects.create(user=instance)  # hz

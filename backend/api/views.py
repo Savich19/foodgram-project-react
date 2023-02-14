@@ -64,9 +64,9 @@ class AddDeleteSubscribe(
         return self.request.user.follower.select_related(
             'following'
         ).prefetch_related(
-            'following__recipe'
+            'following__recipes'
         ).annotate(
-            recipes_count=Count('following__recipe'),
+            recipes_count=Count('following__recipes'),
             is_subscribed=Value(True),
         )
 
@@ -102,12 +102,12 @@ class AddDeleteFavoriteRecipe(
 
     def create(self, request, *args, **kwargs):
         instance = self.get_object()
-        request.user.favorite_recipe.recipe.add(instance)
+        request.user.favorite_recipe.recipe.add(instance)  # !!!
         serializer = self.get_serializer(instance)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def perform_destroy(self, instance):
-        self.request.user.favorite_recipe.recipe.remove(instance)
+        self.request.user.favorite_recipe.recipe.remove(instance) # !!!
 
 
 class AddDeleteShoppingCart(
@@ -118,12 +118,12 @@ class AddDeleteShoppingCart(
 
     def create(self, request, *args, **kwargs):
         instance = self.get_object()
-        request.user.shopping_cart.recipe.add(instance)
+        request.user.shopping_cart.recipe.add(instance) # !!!
         serializer = self.get_serializer(instance)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def perform_destroy(self, instance):
-        self.request.user.shopping_cart.recipe.remove(instance)
+        self.request.user.shopping_cart.recipe.remove(instance) # !!!
 
 
 class AuthToken(ObtainAuthToken):
@@ -204,13 +204,13 @@ class RecipesViewSet(viewsets.ModelViewSet):
                     user=self.request.user,
                     recipe=OuterRef('id')))
         ).select_related('author').prefetch_related(
-            'tags', 'ingredients', 'recipe',
+            'tags', 'ingredients', 'recipe',  # !!!
             'shopping_cart', 'favorite_recipe'
         ) if self.request.user.is_authenticated else Recipe.objects.annotate(
             is_in_shopping_cart=Value(False),
             is_favorited=Value(False),
         ).select_related('author').prefetch_related(
-            'tags', 'ingredients', 'recipe',
+            'tags', 'ingredients', 'recipe',  # !!!
             'shopping_cart', 'favorite_recipe')
 
     def perform_create(self, serializer):
@@ -232,7 +232,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
             values(
                 'ingredients__name',
                 'ingredients__measurement_unit'
-            ).annotate(amount=Sum('recipe__amount')).order_by())
+            ).annotate(amount=Sum('recipe__amount')).order_by())  # !!!
         page.setFont('Vera', 14)
         if shopping_cart:
             indent = 20

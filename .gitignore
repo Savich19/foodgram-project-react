@@ -133,3 +133,4 @@ dmypy.json
 
 # My favorite ignor files
 .vscode/
+backend/media/

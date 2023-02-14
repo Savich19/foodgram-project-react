@@ -51,7 +51,7 @@ class RecipeAdmin(admin.ModelAdmin):
             f' {item["ingredient__measurement_unit"]}.'
             for item in obj.recipe.values(
                 'ingredient__name',
-                'amount',
+                'amount',  # !!!
                 'ingredient__measurement_unit'
             )
         ])
@@ -100,8 +100,7 @@ class FavoriteRecipeAdmin(admin.ModelAdmin):
             )[:LEN_NAME]
         ]
 
-    @admin.display(
-        description='В избранных')
+    @admin.display(description='В избранных')
     def get_count(self, obj):
         return obj.recipe.count()
 
