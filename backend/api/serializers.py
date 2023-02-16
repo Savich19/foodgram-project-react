@@ -4,9 +4,6 @@ from django.core.files.base import ContentFile
 import django.contrib.auth.password_validation as validators
 from django.contrib.auth import authenticate, get_user_model
 from django.contrib.auth.hashers import make_password
-# from django.shortcuts import get_object_or_404
-
-# from base64 import Base64ImageField  # drf_base64
 from rest_framework import serializers
 
 from recipes.models import Ingredient, Recipe, RecipeIngredient, Subscribe, Tag
@@ -74,10 +71,8 @@ class GetIsSubscribedMixin:
         return user.follower.filter(author=obj).exists()
 
 
-# class UserListSerializer(GetIsSubscribedMixin, serializers.ModelSerializer):
 class UserListSerializer(GetIsSubscribedMixin, serializers.ModelSerializer):
-    is_subscribed = serializers.SerializerMethodField(read_only=True)  # (read_only=True) ??
-    # is_subscribed = serializers.BooleanField(read_only=True)
+    is_subscribed = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = User
@@ -222,7 +217,6 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         read_only_fields = ('author',)
 
     def validate(self, data):
-        # ingredients = data['ingredients']
         ingredients_list = data['ingredients']['id']
         ingredients_set = set(ingredients_list)
         if len(ingredients_set) != len(ingredients_list):
@@ -230,14 +224,6 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 f'Ингредиент должен быть уникальным! Найдено ошибок: {delta}'
             )
-        # for items in ingredients:
-        #     ingredient = get_object_or_404(
-        #         Ingredient, id=items['id'])
-        #     if ingredient in ingredient_list:
-        #         raise serializers.ValidationError(
-        #             'Ингредиент должен быть уникальным!')
-        #     ingredient_list.append(ingredient)
-
         tags = data['tags']
         if not tags:
             raise serializers.ValidationError(
@@ -347,7 +333,6 @@ class SubscribeSerializer(serializers.ModelSerializer):
     last_name = serializers.CharField(
         source='author.last_name')
     recipes = serializers.SerializerMethodField()
-    # is_subscribed = serializers.BooleanField(read_only=True)
     is_subscribed = serializers.SerializerMethodField(read_only=True)
     recipes_count = serializers.IntegerField(
         read_only=True)

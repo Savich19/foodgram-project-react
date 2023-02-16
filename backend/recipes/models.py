@@ -1,4 +1,4 @@
-from django.contrib.auth import get_user_model  # hz
+from django.contrib.auth import get_user_model
 from django.core import validators
 from django.db import models
 
@@ -87,13 +87,11 @@ class Recipe(models.Model):
     ingredients = models.ManyToManyField(
         Ingredient,
         through='RecipeIngredient',
-        # verbose_name='Ингредиенты',
-        # related_name='recipes',
     )
     tags = models.ManyToManyField(
         Tag,
         verbose_name='Тэги',
-        related_name='recipes'  # hz
+        related_name='recipes'
     )
     cooking_time = models.PositiveSmallIntegerField(
         verbose_name='Время приготовления в минутах',
@@ -123,14 +121,12 @@ class RecipeIngredient(models.Model):
         Recipe,
         on_delete=models.CASCADE,
         related_name='recipe',
-        # related_name='amounts',
         verbose_name='Рецепт'
     )
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
         related_name='ingredient',
-        # related_name='amounts',
         verbose_name='Ингредиент'
     )
     amount = models.PositiveSmallIntegerField(
@@ -211,7 +207,7 @@ class FavoriteRecipe(models.Model):
         verbose_name_plural = 'Избранные рецепты'
 
     def __str__(self):
-        list_ = [item['name'] for item in self.recipe.values('name')]  # hz
+        list_ = [item['name'] for item in self.recipe.values('name')]
         return f'Пользователь {self.user} добавил {list_} в избранные.'
 
 
@@ -221,7 +217,6 @@ class ShoppingCart(models.Model):
         User,
         on_delete=models.CASCADE,
         related_name='shopping_cart',
-        # null=True,  # hz
         verbose_name='Пользователь')
     recipe = models.ManyToManyField(
         Recipe,
@@ -229,10 +224,10 @@ class ShoppingCart(models.Model):
         verbose_name='Покупка')
 
     class Meta:
-        ordering = ['-id']  # hz
+        ordering = ['-id']
         verbose_name = 'Покупка'
         verbose_name_plural = 'Покупки'
 
     def __str__(self):
-        list_ = [item['name'] for item in self.recipe.values('name')]  # hz
+        list_ = [item['name'] for item in self.recipe.values('name')]
         return f'Пользователь {self.user} добавил {list_} в покупки.'

@@ -51,7 +51,7 @@ class RecipeAdmin(admin.ModelAdmin):
             f' {item["ingredient__measurement_unit"]}.'
             for item in obj.recipe.values(
                 'ingredient__name',
-                'amount',  # !!!
+                'amount',
                 'ingredient__measurement_unit'
             )
         ])

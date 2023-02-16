@@ -7,10 +7,7 @@ load_dotenv('../infra/.env')
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-SECRET_KEY = os.getenv(
-    'SECRET_KEY',
-    # default='ec59wg#s_k+59(&sop4ce@c$b3dyt!#!&w&@()s)p63vn1qxsb'
-)
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 DEBUG = True
 
@@ -46,12 +43,10 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'foodgram.urls'
 
-# TEMPLATES_DIR = os.path.join(BASE_DIR, "templates")  # дописал
-
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],  # 'DIRS': [TEMPLATES_DIR],
+        'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -66,8 +61,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'foodgram.wsgi.application'
 
-
-IS_SQL = False
+IS_SQL = True
 
 if IS_SQL:
     DATABASES = {
@@ -81,10 +75,10 @@ else:
         'default': {
             'ENGINE': os.getenv('DB_ENGINE',
                                 default='django.db.backends.postgresql'),
-            'NAME': os.getenv('POSTGRES_DB', default='foodgram'),  # 'DB_NAME' = DB_name
-            'USER': os.getenv('POSTGRES_USER', default='postgres'),  # DB_user
-            'PASSWORD': os.getenv('POSTGRES_PASSWORD', default='DB_password'),  # postgres
-            'HOST': os.getenv('DB_HOST', default='db'),  # localhost
+            'NAME': os.getenv('DB_NAME', default='postgres'),
+            'USER': os.getenv('POSTGRES_USER', default='postgres'),
+            'PASSWORD': os.getenv('POSTGRES_PASSWORD', default='DB_password'),
+            'HOST': os.getenv('DB_HOST', default='db'),
             'PORT': os.getenv('DB_PORT', default='5432')
         }
     }
@@ -105,7 +99,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-LANGUAGE_CODE = 'ru-RU'  # надо заменить на LANGUAGE_CODE =  'en-us'
+LANGUAGE_CODE = 'en-us'  # 'ru-RU' ?
 
 TIME_ZONE = 'UTC'
 
@@ -137,26 +131,3 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'api.pagination.LimitPageNumberPagination',
     'PAGE_SIZE': 6,
 }
-
-# REST_FRAMEWORK = {
-#     'DEFAULT_AUTHENTICATION_CLASSES': (
-#         'rest_framework_simplejwt.authentication.JWTAuthentication',
-#     ),
-# }
-
-# SIMPLE_JWT = {
-#     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
-#     'AUTH_HEADER_TYPES': ('Bearer',),
-# }
-
-# EMAIL_HOST = 'smtp.gmail.com'
-
-# EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
-
-# EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
-
-# EMAIL_PORT = 587
-
-# EMAIL_USE_TLS = True
-
-# EMAIL_USE_SSL = False
