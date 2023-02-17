@@ -1,9 +1,9 @@
 import base64
 
-from django.core.files.base import ContentFile
 import django.contrib.auth.password_validation as validators
 from django.contrib.auth import authenticate, get_user_model
 from django.contrib.auth.hashers import make_password
+from django.core.files.base import ContentFile
 from rest_framework import serializers
 
 from recipes.models import Ingredient, Recipe, RecipeIngredient, Subscribe, Tag
@@ -23,6 +23,7 @@ class Base64ImageField(serializers.ImageField):
 
 
 class TokenSerializer(serializers.Serializer):
+
     email = serializers.CharField(
         label='Email',
         write_only=True
@@ -217,7 +218,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         read_only_fields = ('author',)
 
     def validate(self, data):
-        ingredients_list = data['ingredients']['id']
+        ingredients_list = [ingr['id'] for ingr in data['ingredients']]
         ingredients_set = set(ingredients_list)
         if len(ingredients_set) != len(ingredients_list):
             delta = len(ingredients_list) - len(ingredients_set)
@@ -228,6 +229,10 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         if not tags:
             raise serializers.ValidationError(
                 'Нужен хотя бы один тэг для рецепта!')
+        if len(set(tags)) != len(tags):
+            raise serializers.ValidationError(
+                'Тэг должен быть уникальным!'
+            )
         for tag_name in tags:
             if not Tag.objects.filter(name=tag_name).exists():
                 raise serializers.ValidationError(

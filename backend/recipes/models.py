@@ -3,16 +3,16 @@ from django.core import validators
 from django.db import models
 
 User = get_user_model()
-CHOICES = (
-    ('#E26C2D', 'Завтрак'),
-    ('#49B64E', 'Обед'),
-    ('#8775D2', 'Ужин'),
-)
 
 
 class Tag(models.Model):
     """Класс предустановленных тэгов. Создаются администратором."""
 
+    CHOICES = (
+        ('#E26C2D', 'Завтрак'),
+        ('#49B64E', 'Обед'),
+        ('#8775D2', 'Ужин'),
+    )
     name = models.CharField(
         'Название тэга',
         max_length=20,
