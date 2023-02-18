@@ -4,6 +4,7 @@ import django.contrib.auth.password_validation as validators
 from django.contrib.auth import authenticate, get_user_model
 from django.contrib.auth.hashers import make_password
 from django.core.files.base import ContentFile
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
 from recipes.models import Ingredient, Recipe, RecipeIngredient, Subscribe, Tag
@@ -18,12 +19,14 @@ class Base64ImageField(serializers.ImageField):
         if isinstance(data, str) and data.startswith('data:image'):
             format, imgstr = data.split(';base64,')
             ext = format.split('/')[-1]
-            data = ContentFile(base64.b64decode(imgstr), name='photo.' + ext)
+            data = ContentFile(
+                base64.b64decode(imgstr),
+                name='photo.' + ext
+            )
         return super().to_internal_value(data)
 
 
 class TokenSerializer(serializers.Serializer):
-
     email = serializers.CharField(
         label='Email',
         write_only=True
@@ -42,23 +45,26 @@ class TokenSerializer(serializers.Serializer):
     def validate(self, attrs):
         email = attrs.get('email')
         password = attrs.get('password')
+
         if email and password:
-            user = authenticate(
-                request=self.context.get('request'),
+            user_request = get_object_or_404(
+                User,
                 email=email,
-                password=password
             )
-            if not user:
-                raise serializers.ValidationError(
-                    ERROR_MSG,
-                    code='authorization'
-                )
+            email = user_request.username
+
+            user = authenticate(username=email, password=password)
+
+            if user:
+                if not user.is_active:
+                    msg = 'Аккаунт пользователя не активен.'
+                    raise serializers.ValidationError(msg)
+            else:
+                raise serializers.ValidationError(ERROR_MSG)
         else:
             msg = 'Необходимо указать адрес электронной почты и пароль.'
-            raise serializers.ValidationError(
-                msg,
-                code='authorization'
-            )
+            raise serializers.ValidationError(msg)
+
         attrs['user'] = user
         return attrs
 
