@@ -8,6 +8,8 @@ from django.shortcuts import get_object_or_404
 from recipes.models import Ingredient, Recipe, RecipeIngredient, Subscribe, Tag
 from rest_framework import serializers
 
+# from .views import GetObjectMixin  # Add
+
 User = get_user_model()
 ERROR_MSG = 'Не удается войти в систему с предоставленными учетными данными.'
 
@@ -319,7 +321,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class SubscribeRecipeSerializer(serializers.ModelSerializer):
+class SubscribeRecipeSerializer(serializers.ModelSerializer):  # !
 
     class Meta:
         model = Recipe
@@ -331,7 +333,8 @@ class SubscribeRecipeSerializer(serializers.ModelSerializer):
         )
 
 
-class SubscribeSerializer(serializers.ModelSerializer):
+class SubscribeSerializer(GetIsSubscribedMixin,
+                          serializers.ModelSerializer):
     id = serializers.IntegerField(
         source='author.id')
     email = serializers.EmailField(

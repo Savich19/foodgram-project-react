@@ -94,6 +94,7 @@ class AddDeleteSubscribe(
 
     def perform_destroy(self, instance):
         self.request.user.follower.filter(author=instance).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)  # добавил
 
 
 class AddDeleteFavoriteRecipe(
@@ -110,6 +111,7 @@ class AddDeleteFavoriteRecipe(
 
     def perform_destroy(self, instance):
         self.request.user.favorite_recipe.recipe.remove(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)  # добавил
 
 
 class AddDeleteShoppingCart(
