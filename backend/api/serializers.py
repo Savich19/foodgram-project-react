@@ -74,7 +74,7 @@ class GetIsSubscribedMixin:
         user = self.context['request'].user
         if not user.is_authenticated:  # user.is_anonymous
             return False
-        return user.follower.filter(author=obj.id).exists()  # Было: (author=obj)
+        return user.follower.filter(author=obj.id).exists()  # (author=obj)
 
 
 class UserListSerializer(GetIsSubscribedMixin, serializers.ModelSerializer):
