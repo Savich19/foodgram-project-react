@@ -12,7 +12,6 @@ from djoser.views import UserViewSet
 from recipes.models import (FavoriteRecipe, Ingredient, Recipe, ShoppingCart,
                             Subscribe, Tag)
 from reportlab.pdfbase import pdfmetrics, ttfonts
-# from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
 from rest_framework import generics, status, viewsets
 from rest_framework.authtoken.models import Token
@@ -37,8 +36,7 @@ class GetObjectMixin:
     """Миксин для добавления/удаления рецептов избранных/корзины."""
 
     serializer_class = SubscribeRecipeSerializer
-    permission_classes = (IsAuthenticated,)  # Добавил
-    # permission_classes = (AllowAny,)
+    permission_classes = (IsAuthenticated,)
 
     def get_object(self):
         recipe_id = self.kwargs['recipe_id']
@@ -60,7 +58,7 @@ class AddDeleteSubscribe(
     """Подписка и отписка от пользователя."""
 
     serializer_class = SubscribeSerializer
-    permission_classes = (IsAuthenticated,)  # Добавил
+    permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
         return self.request.user.follower.select_related(
@@ -94,7 +92,7 @@ class AddDeleteSubscribe(
 
     def perform_destroy(self, instance):
         self.request.user.follower.filter(author=instance).delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)  # добавил
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class AddDeleteFavoriteRecipe(
@@ -105,13 +103,14 @@ class AddDeleteFavoriteRecipe(
 
     def create(self, request, *args, **kwargs):
         instance = self.get_object()
+        fr, _ = FavoriteRecipe.objects.get_or_create(user=request.user)
         request.user.favorite_recipe.recipe.add(instance)
         serializer = self.get_serializer(instance)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def perform_destroy(self, instance):
         self.request.user.favorite_recipe.recipe.remove(instance)
-        return Response(status=status.HTTP_204_NO_CONTENT)  # добавил
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class AddDeleteShoppingCart(
@@ -122,13 +121,14 @@ class AddDeleteShoppingCart(
 
     def create(self, request, *args, **kwargs):
         instance = self.get_object()
+        fr, _ = ShoppingCart.objects.get_or_create(user=request.user)
         request.user.shopping_cart.recipe.add(instance)
         serializer = self.get_serializer(instance)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def perform_destroy(self, instance):
         self.request.user.shopping_cart.recipe.remove(instance)
-        return Response(status=status.HTTP_204_NO_CONTENT)  # добавил
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class AuthToken(ObtainAuthToken):
@@ -230,9 +230,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
 
         buffer = io.BytesIO()
         page = canvas.Canvas(buffer)
-        # arial = ttfonts.TTFont('Arial', 'data/arial.ttf')  # Добавил
         pdfmetrics.registerFont(ttfonts.TTFont('Vera', 'Vera.ttf'))
-        # pdfmetrics.registerFont(arial)
         x_position, y_position = 50, 800
         shopping_cart = (
             request.user.shopping_cart.recipe.

@@ -94,6 +94,9 @@ docker-compose exec backend python manage.py collectstatic --noinput
 API документация доступна по ссылке (создана с помощью redoc):
 [http://62.84.117.165/api/docs/](http://62.84.117.165/api/docs/)
 
+## Стандартная админ-панель Django
+Стандартная админ-панель Django доступна по адресу [https://62.84.117.165/admin/](https://62.84.117.165/admin/)
+
 ## Авторы
 [Савич А.В.](https://github.com/Savich19) Бэкенд для сервиса Foodgram.
 [Яндекс.Практикум](https://github.com/yandex-praktikum) Фронтенд для сервиса Foodgram.
