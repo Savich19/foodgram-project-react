@@ -11,8 +11,8 @@ from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
 from recipes.models import (FavoriteRecipe, Ingredient, Recipe, ShoppingCart,
                             Subscribe, Tag)
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfbase import pdfmetrics, ttfonts
+# from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
 from rest_framework import generics, status, viewsets
 from rest_framework.authtoken.models import Token
@@ -37,7 +37,8 @@ class GetObjectMixin:
     """Миксин для добавления/удаления рецептов избранных/корзины."""
 
     serializer_class = SubscribeRecipeSerializer
-    permission_classes = (AllowAny,)
+    permission_classes = (IsAuthenticated,)  # Добавил
+    # permission_classes = (AllowAny,)
 
     def get_object(self):
         recipe_id = self.kwargs['recipe_id']
@@ -59,6 +60,7 @@ class AddDeleteSubscribe(
     """Подписка и отписка от пользователя."""
 
     serializer_class = SubscribeSerializer
+    permission_classes = (IsAuthenticated,)  # Добавил
 
     def get_queryset(self):
         return self.request.user.follower.select_related(
@@ -124,6 +126,7 @@ class AddDeleteShoppingCart(
 
     def perform_destroy(self, instance):
         self.request.user.shopping_cart.recipe.remove(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)  # добавил
 
 
 class AuthToken(ObtainAuthToken):
@@ -225,7 +228,9 @@ class RecipesViewSet(viewsets.ModelViewSet):
 
         buffer = io.BytesIO()
         page = canvas.Canvas(buffer)
-        pdfmetrics.registerFont(TTFont('Vera', 'Vera.ttf'))
+        # arial = ttfonts.TTFont('Arial', 'data/arial.ttf')  # Добавил
+        pdfmetrics.registerFont(ttfonts.TTFont('Vera', 'Vera.ttf'))
+        # pdfmetrics.registerFont(arial)
         x_position, y_position = 50, 800
         shopping_cart = (
             request.user.shopping_cart.recipe.

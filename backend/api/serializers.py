@@ -72,9 +72,9 @@ class GetIsSubscribedMixin:
 
     def get_is_subscribed(self, obj):
         user = self.context['request'].user
-        if not user.is_authenticated:
+        if not user.is_authenticated:  # user.is_anonymous
             return False
-        return user.follower.filter(author=obj).exists()
+        return user.follower.filter(author=obj.id).exists()  # Было: (author=obj)
 
 
 class UserListSerializer(GetIsSubscribedMixin, serializers.ModelSerializer):
@@ -110,7 +110,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
         return password
 
 
-class UserPasswordSerializer(serializers.Serializer):
+class UserPasswordSerializer(serializers.Serializer):  # !!
     new_password = serializers.CharField(
         label='Новый пароль')
     current_password = serializers.CharField(
@@ -119,7 +119,7 @@ class UserPasswordSerializer(serializers.Serializer):
     def validate_current_password(self, current_password):
         user = self.context['request'].user
         if not authenticate(
-                username=user.email,
+                username=user.username,  # username=user.email
                 password=current_password):
             raise serializers.ValidationError(
                 ERROR_MSG, code='authorization')

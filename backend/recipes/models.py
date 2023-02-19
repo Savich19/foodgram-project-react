@@ -29,7 +29,7 @@ class Tag(models.Model):
     )
 
     class Meta:
-        ordering = ['-id']
+        ordering = ['id']
         verbose_name = 'Тэг'
         verbose_name_plural = 'Тэги'
 

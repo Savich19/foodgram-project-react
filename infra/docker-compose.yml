@@ -4,18 +4,23 @@ services:
   db:
     image: postgres:13.0-alpine
     container_name: db
+    restart: always
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     env_file:
       - ./.env
 
   backend:
-    image: sav19/foodgram_backend:latest
+    # image: sav19/foodgram_backend:latest
+    build:
+        context: ../backend
+        dockerfile: Dockerfile
     restart: always
     volumes:
       - data_value:/app/data/
       - static_value:/app/static/
       - media_value:/app/media/
+      # - redoc:/app/api/docs/
     depends_on:
       - db
     env_file:
@@ -36,7 +41,9 @@ services:
       - static_value:/var/html/static/django/
       - media_value:/var/html/media/django/
       - ../frontend/build:/usr/share/nginx/html/
-      - ../docs/:/usr/share/nginx/html/api/docs/
+      # - redoc:/usr/share/nginx/html/api/docs/
+      - ../docs/redoc.html:/usr/share/nginx/html/api/docs/redoc.html
+      - ../docs/openapi-schema.yml:/usr/share/nginx/html/api/docs/openapi-schema.yml
     depends_on:
       - backend
 
@@ -46,3 +53,4 @@ volumes:
   data_value:
   static_value:
   media_value:
+  redoc:
