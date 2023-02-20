@@ -230,8 +230,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
 
         buffer = io.BytesIO()
         page = canvas.Canvas(buffer)
-        arial = ttfonts.TTFont('Arial', 'data/arial.ttf')  # Добавил
-        # pdfmetrics.registerFont(ttfonts.TTFont('Vera', 'Vera.ttf'))
+        arial = ttfonts.TTFont('Arial', 'data/arial.ttf')
         pdfmetrics.registerFont(arial)
         x_position, y_position = 50, 800
         shopping_cart = (
@@ -240,7 +239,6 @@ class RecipesViewSet(viewsets.ModelViewSet):
                 'ingredients__name',
                 'ingredients__measurement_unit'
             ).annotate(amount=Sum('recipe__amount')).order_by())
-        # page.setFont('Vera', 14)
         page.setFont('Arial', 14)
         if shopping_cart:
             indent = 20
@@ -259,7 +257,6 @@ class RecipesViewSet(viewsets.ModelViewSet):
             buffer.seek(0)
             return FileResponse(
                 buffer, as_attachment=True, filename=FILENAME)
-        # page.setFont('Vera', 24)
         page.setFont('Arial', 24)
         page.drawString(
             x_position,
