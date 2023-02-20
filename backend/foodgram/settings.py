@@ -8,7 +8,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 SECRET_KEY = os.getenv('SECRET_KEY')
 
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -21,8 +21,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework',  # до djoser
-    'rest_framework.authtoken',  # до djoser
+    'rest_framework',
+    'rest_framework.authtoken',
     'corsheaders',
     'djoser',
     'django_filters',
@@ -136,7 +136,6 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 6,
 }
 
-# Test
 DJOSER = {
     "LOGIN_FIELD": 'email',
     "SEND_ACTIVATION_EMAIL": False,
